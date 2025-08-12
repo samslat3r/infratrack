@@ -1,6 +1,9 @@
 from datetime import datetime, timezone
 from . import db 
 
+### NYI: model relationships with cascading deletes ( + DB 'ON DELETE CASCADE' )
+
+
 def tags_to_list(tag_string):
     return [t.strip() for t in tag_string.split(',') if t.strip()]
 
