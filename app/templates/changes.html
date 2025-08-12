@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Changes{% endblock %}
+{% block content %}
+  <div class="d-flex align-items-center mb-3">
+    <h2 class="mb-0">Changes</h2>
+    <a href="{{ url_for('main.add_change') }}" class="btn btn-primary ml-3">Add Change</a>
+  </div>
+
+  {% if changes %}
+  <div class="table-responsive">
+    <table class="table table-striped table-hover">
+      <thead class="thead-light">
+        <tr>
+          <th>ID</th>
+          <th>Host</th>
+          <th>Summary</th>
+          <th>Changed At</th>
+          <th style="width: 190px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for change in changes %}
+        <tr>
+          <td>{{ change.id }}</td>
+          <td>{{ change.host.hostname }}</td>
+          <td>{{ change.summary }}</td>
+          <td>{{ change.changed_at.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td>
+            <a href="{{ url_for('main.edit_change', id=change.id) }}" class="btn btn-sm btn-secondary">Edit</a>
+            <form action="{{ url_for('main.delete_change', id=change.id) }}" method="post" style="display:inline;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn-sm btn-danger" onclick="return confirm('Delete this change?');">Delete</button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="text-muted">No changes found.</p>
+  {% endif %}
+{% endblock %}

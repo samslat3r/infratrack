@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}InfraTrack · Hosts{% endblock %}
+{% block content %}
+  <div class="d-flex align-items-center mb-3">
+    <h2 class="mb-0">Hosts</h2>
+    <a href="{{ url_for('main.add_host') }}" class="btn btn-primary ml-3">Add Host</a>
+  </div>
+
+  {% if hosts %}
+  <div class="table-responsive">
+    <table class="table table-striped table-hover">
+      <thead class="thead-light">
+        <tr>
+          <th>ID</th>
+          <th>Hostname</th>
+          <th>IP</th>
+          <th>OS</th>
+          <th>Tags</th>
+          <th style="width: 190px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for host in hosts %}
+        <tr>
+          <td>{{ host.id }}</td>
+          <td>{{ host.hostname }}</td>
+          <td>{{ host.ip_address }}</td>
+          <td>{{ host.os }}</td>
+          <td>{{ host.tags }}</td>
+          <td>
+            <a href="{{ url_for('main.edit_host', id=host.id) }}" class="btn btn-sm btn-secondary">Edit</a>
+            <form action="{{ url_for('main.delete_host', id=host.id) }}" method="post" style="display:inline;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn-sm btn-danger" onclick="return confirm('Delete this host?');">Delete</button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="text-muted">No hosts found.</p>
+  {% endif %}
+{% endblock %}

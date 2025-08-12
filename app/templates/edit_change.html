@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Edit Change</h2>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <div class="form-group">{{ form.host_id.label }} {{ form.host_id(class="form-control") }}</div>
+  <div class="form-group">{{ form.summary.label }} {{ form.summary(class="form-control") }}</div>
+  <button type="submit" class="btn btn-primary">Update</button>
+</form>
+{% endblock %}
