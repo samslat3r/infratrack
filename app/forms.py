@@ -3,7 +3,7 @@ from wtforms import StringField, SubmitField, TextAreaField, SelectField
 from wtforms.validators import DataRequired, IPAddress
 
 class HostForm(FlaskForm):
-    name = StringField('Hostname', validators=[DataRequired()])
+    hostname = StringField('Hostname', validators=[DataRequired()])
     ip_address = StringField('IP Address', validators=[DataRequired(), IPAddress()])
     os = StringField('Operating System')
     tags = StringField('Tags (Comma-separated)')
