@@ -1,33 +1,44 @@
 import os
+import sqlite3
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
-from flask_wtf.csrf import generate_csrf
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
 
 db = SQLAlchemy()
 csrf = CSRFProtect()
 
-def create_app():
+def create_app() -> Flask:
     app = Flask(__name__)
 
+    # Config
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "replace-with-secure-key")
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
-        "DATABASE_URL", "sqlite+pysqlite:///infratrack.db"
+        "SQLALCHEMY_DATABASE_URI", "sqlite:///infratrack.db"
     )
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+    # Init 
     db.init_app(app)
     csrf.init_app(app)
 
-    # Make {{ csrf_token() }} available in all templates
-    @app.context_processor
-    def inject_csrf():
-        return dict(csrf_token=generate_csrf)  
+    # Enable SQLite FK constraints so ON DELETE CASCADE works
+    @event.listens_for(Engine, "connect")
+    def set_sqlite_pragma(dbapi_connection, connection_record):
 
-    from .routes import main as main_bp
-    app.register_blueprint(main_bp)
+        if isinstance(dbapi_connection, sqlite3.Connection):
+            cursor = dbapi_connection.cursor()
+            cursor.execute("PRAGMA foreign_keys=ON")
+            cursor.close()
 
+    # Register Blueprints
     with app.app_context():
+        from .routes import main as main_bp  
+        from .routes import main as main_blueprint
+        app.register_blueprint(main_blueprint)
+
+        from . import models 
         db.create_all()
 
     return app

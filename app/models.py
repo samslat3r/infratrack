@@ -1,36 +1,63 @@
-from datetime import datetime, timezone
-from . import db 
+from datetime import datetime
+from . import db
 
-### NYI: model relationships with cascading deletes ( + DB 'ON DELETE CASCADE' )
+def tags_to_list(tag_string: str):
+    return [t.strip() for t in (tag_string or "").split(",") if t.strip()]
 
-
-def tags_to_list(tag_string):
-    return [t.strip() for t in tag_string.split(',') if t.strip()]
 
 class Host(db.Model):
+    __tablename__ = "host"
+
     id = db.Column(db.Integer, primary_key=True)
     hostname = db.Column(db.String(64), nullable=False)
-    ip_address = db.Column(db.String(15), nullable=False)
+    ip_address = db.Column(db.String(45), nullable=False)
     os = db.Column(db.String(64))
     tags = db.Column(db.String(255))
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
-    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    # ORM cascade + DB cascade
+    tasks = db.relationship(
+        "Task",
+        backref="host",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        lazy=True,
+    )
+    changes = db.relationship(
+        "Change",
+        backref="host",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        lazy=True,
+    )
+
     def tag_list(self):
-        return tags_to_list(self.tags or '')
+        return tags_to_list(self.tags)
+
 
 class Task(db.Model):
+    __tablename__ = "task"
+
     id = db.Column(db.Integer, primary_key=True)
-    host_id = db.Column(db.Integer, db.ForeignKey('host.id'), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    performed_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
-    
-    host = db.relationship('Host', backref=db.backref('tasks', lazy=True))
+    host_id = db.Column(
+        db.Integer,
+        db.ForeignKey("host.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    description = db.Column(db.String(255), nullable=False)
+    performed_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
 
 class Change(db.Model):
+    __tablename__ = "change"
+
     id = db.Column(db.Integer, primary_key=True)
-    host_id = db.Column(db.Integer, db.ForeignKey('host.id'), nullable=False)
+    host_id = db.Column(
+        db.Integer,
+        db.ForeignKey("host.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
     summary = db.Column(db.String(255), nullable=False)
-    changed_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
-    
-    host = db.relationship('Host', backref=db.backref('changes', lazy=True))
-    
+    changed_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
