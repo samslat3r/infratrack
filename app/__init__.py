@@ -13,7 +13,10 @@ def create_app() -> Flask:
     app = Flask(__name__)
 
     # Config
-    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "replace-with-secure-key")
+    secret_key = os.getenv("SECRET_KEY")
+    if not secret_key:
+        raise RuntimeError("SECRET_KEY environment variable must be set for security")
+    app.config["SECRET_KEY"] = secret_key
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
         "SQLALCHEMY_DATABASE_URI", "sqlite:///infratrack.db"
     )
@@ -34,7 +37,6 @@ def create_app() -> Flask:
 
     # Register Blueprints
     with app.app_context():
-        from .routes import main as main_bp  
         from .routes import main as main_blueprint
         app.register_blueprint(main_blueprint)
 
