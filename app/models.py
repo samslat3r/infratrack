@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from . import db
 
 def tags_to_list(tag_string: str):
@@ -13,7 +13,7 @@ class Host(db.Model):
     ip_address = db.Column(db.String(45), nullable=False)
     os = db.Column(db.String(64))
     tags = db.Column(db.String(255))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
 
     # ORM cascade + DB cascade
     tasks = db.relationship(
@@ -46,7 +46,7 @@ class Task(db.Model):
         index=True,
     )
     description = db.Column(db.String(255), nullable=False)
-    performed_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    performed_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
 
 
 class Change(db.Model):
@@ -60,4 +60,4 @@ class Change(db.Model):
         index=True,
     )
     summary = db.Column(db.String(255), nullable=False)
-    changed_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    changed_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
