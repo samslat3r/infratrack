@@ -32,6 +32,23 @@ A lightweight demonstration DevOps-focused CRUD app built with Flask. A tracking
 - `terraform/`: AWS provisioning
 - `ansible/`: server provisioning & deployment
 
+## Running in development from root directory
+
+```
+1) SQLite Persistence
+mkdir -p data
+
+2) Build images
+docker compose build
+
+3) Launch Nginx + Gunicorn + Flask
+docker compose up -d
+
+4) Tail logs (screen/tmux)
+docker compose logs -f
+```
+Access application at `http://localhost:8080`
+
 ## Stretch goals (in tentative order of preference)
 
 - **Amazon RDS** instead of SQLite to mimic a production-like environment
