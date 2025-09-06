@@ -1,0 +1,33 @@
+- name: Create application directory
+  file:
+    path: "{{ app_dir }}"
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: "0755"
+
+- name: Clone InfraTrack repository
+  git:
+    repo: "{{ repo_url }}"
+    dest: "{{ app_dir }}"
+    version: "{{ repo_version }}"
+    force: yes
+    update: yes
+
+- name: Ensure .env exists on server (copy from template if present)
+  copy:
+    src: "{{ app_dir }}/.env.template"
+    dest: "{{ app_dir }}/.env"
+    remote_src: yes
+    force: no
+  ignore_errors: yes
+
+- name: Bring up services via Docker Compose v2 (nginx + web)
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_dir }}"
+    state: present
+  register: compose_up
+
+- name: Show compose result
+  debug:
+    var: compose_up
