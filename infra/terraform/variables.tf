@@ -13,7 +13,7 @@ variable "prefix" {
 variable "deployer_principals" {
   description = "List of AWS principals (ARNs) allowed to assume the deployer role."
   type        = list(string)
-  default     = [] # e.g., ["arn:aws:iam::99999999:user/sam"]
+  default     = ["arn:aws:iam::9999999:user/username"] # e.g., ["arn:aws:iam::99999999:user/sam"]
 }
 
 variable "instance_type" {
@@ -31,5 +31,5 @@ variable "key_name" {
 variable "public_key_path" {
   description = "Local public SSH key  to create keypair."
   type        = string
-  default     = "~/.ssh/id_rsa.pub"
+  default     = "~/.ssh/infratrack.pub"
 }
