@@ -5,13 +5,27 @@ data "aws_vpc" "default" {
   default = true
 }
 
-# Ubuntu 24.04 AMI
+# Ubuntu 24.04 (Noble) x86_64 HVM EBS — Canonical
 data "aws_ami" "ubuntu_2404" {
   most_recent = true
   owners      = ["099720109477"] # Canonical
+
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-noble-24.04-amd64-server-*"]
+    # Note the leading wildcard after ubuntu/images/
+    values = ["ubuntu/images/*ubuntu-noble-24.04-amd64-server-*"]
+  }
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
   }
 }
 
@@ -83,9 +97,9 @@ resource "aws_iam_instance_profile" "ec2_profile" {
   role = aws_iam_role.ec2_role.name
 }
 
-############################################
+
 # EC2 Instance
-############################################
+
 
 resource "aws_instance" "web" {
   ami                         = data.aws_ami.ubuntu_2404.id
